@@ -1,0 +1,25 @@
+import java.awt.Color;
+import java.awt.geom.Point2D;
+
+/*
+ * Enemy that kills the Hero when touches it
+ */
+
+//This is the dude that doesn't dig
+public class Nobbin extends Monster {
+
+	public Nobbin(World world, Point2D upLeftPoint) {
+		super(world, upLeftPoint);
+		this.setSpeed(3);
+		this.setColor(Color.cyan);
+	}
+
+	@Override
+	public void timePassed() {
+		this.setDirection(this.getWorld().getTunnel().getShortestWay(this.getWorld().getHero(), this));
+		this.move(this.getDirection());
+		if(this.encounteredWithHero()){
+			this.getWorld().getHero().setIsAlive(false);
+		}
+	}
+}

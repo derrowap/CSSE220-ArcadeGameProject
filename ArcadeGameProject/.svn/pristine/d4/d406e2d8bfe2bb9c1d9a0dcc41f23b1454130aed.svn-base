@@ -1,0 +1,16 @@
+import java.awt.Color;
+import java.awt.geom.Point2D;
+
+/*
+ * Bag object that is currently a blue square on the GUI and does nothing.
+ * 
+ */
+public class Bag extends Pickups {
+	private static final Color Bag_Color = Color.BLUE;
+	
+	public Bag(World world, Point2D centerPoint) {
+		super(world, centerPoint);
+		this.setColor(Bag_Color);
+	}
+
+}

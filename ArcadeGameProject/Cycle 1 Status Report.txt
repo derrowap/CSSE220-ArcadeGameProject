@@ -1,0 +1,18 @@
+Cycle 1 Status Report
+
+estimated time spend:
+5 hours
+
+actual time spend:
+10 hours
+
+Achievements;
+completed minimun requirements.
+understand how hard to start from scratch.
+
+
+
+User story:
+1. User can kill the monsters by pressing the space.
+2. User can see the hero been killed by overlapped with monsters
+3. User can see two different monsters and movements by playing the game

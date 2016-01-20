@@ -1,0 +1,236 @@
+import java.awt.Graphics2D;
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
+
+public class World implements Temporal {
+	private static final long UPDATE_INTERVAL_MS = 5;
+	private final static int Block_Size = 72;
+	private char[][] info;
+	private int level;
+	private Hero hero;
+	private boolean isPaused = false;
+	private ArrayList<FootPrint> footprints;
+	private ArrayList<Monster> enemies;
+	private ArrayList<Monster> enemiesToClear;
+	private ArrayList<ObjectInWorld> blocks;
+	private ArrayList<ObjectInWorld> blocksToClear;
+	private Tunnel tunnel;
+	private ArrayList<Bullet> bullets;
+	private ArrayList<Bullet> bulletsToClear;
+	
+	public World(int level, int score) {
+		this.level = level;
+		LevelLoader ll = new LevelLoader(level);
+		this.info = ll.getInfo();
+		this.tunnel = new Tunnel();
+		this.blocks = new ArrayList<ObjectInWorld>();
+		this.enemies = new ArrayList<Monster>();
+		for (int i = 0; i < this.info.length; i++) {
+			for (int j = 0; j < this.info[i].length; j++) {
+				if (this.info[i][j] == 'D') {
+					this.blocks.add(new Dirt(this, new Point2D.Double(j
+							* Block_Size, i * Block_Size)));
+				}
+				if (this.info[i][j] == 'E') {
+					this.blocks.add(new Dirt(this, new Point2D.Double(j
+							* Block_Size, i * Block_Size)));
+					this.blocks.add(new Emerald(this, new Point2D.Double(j
+							* Block_Size, i * Block_Size)));
+
+				}
+				if (this.info[i][j] == 'B') {
+					this.blocks.add(new Dirt(this, new Point2D.Double(j
+							* Block_Size, i * Block_Size)));
+					this.blocks.add(new Bag(this, new Point2D.Double(j
+							* Block_Size, i * Block_Size)));
+
+				}
+				if (this.info[i][j] == 'G') {
+					this.blocks.add(new Dirt(this, new Point2D.Double(j
+							* Block_Size, i * Block_Size)));
+					this.blocks.add(new Gold(this, new Point2D.Double(j
+							* Block_Size, i * Block_Size)));
+
+				}
+				if (this.info[i][j] == 'H') {
+					this.hero = new Hero(this, new Point2D.Double(j
+							* Block_Size, i * Block_Size));
+					this.hero.setScore(score);
+					this.tunnel
+					.addEmptySpaces(new EmptySpace(this,
+							new Point2D.Double(j * Block_Size, i
+									* Block_Size)));
+				}
+				if (this.info[i][j] == '*') {
+					this.tunnel
+							.addEmptySpaces(new EmptySpace(this,
+									new Point2D.Double(j * Block_Size, i
+											* Block_Size)));
+				}
+				if (this.info[i][j] == 'N') {
+					this.enemies.add(new Nobbin(this, new Point2D.Double(j
+							* Block_Size, i * Block_Size)));
+					this.tunnel
+					.addEmptySpaces(new EmptySpace(this,
+							new Point2D.Double(j * Block_Size, i
+									* Block_Size)));
+				}
+				if (this.info[i][j] == 'O') {
+					this.enemies.add(new Hobbin(this, new Point2D.Double(j
+							* Block_Size, i * Block_Size)));
+				}
+			}
+			this.footprints = new ArrayList<FootPrint>();
+			this.blocksToClear = new ArrayList<ObjectInWorld>();
+			this.enemiesToClear = new ArrayList<Monster>();
+			this.bullets = new ArrayList<Bullet>();
+			this.bulletsToClear = new ArrayList<Bullet>();
+		}
+	}
+
+	// Draws the blocks onto the GUI
+	public void drawOn(Graphics2D g) {
+		for (ObjectInWorld o : this.blocks) {
+			if (o != null) {
+				drawDrawable(o, g);
+			}
+		}
+		for (FootPrint fp : this.footprints) {
+			drawDrawable(fp, g);
+		}
+		for (Monster mn: this.enemies) {
+			mn.moveToHero();
+			drawDrawable(mn, g);
+		}
+		for (Bullet b : this.bullets){
+			drawDrawable(b, g);
+		}
+		if (this.hero.getIsAlive()) {
+			drawDrawable(this.hero, g);
+		}
+	}
+
+	// Draws a specific Drawable type object
+	public void drawDrawable(Drawable d, Graphics2D g) {
+		g.setColor(d.getColor());
+		g.fill(d.getShape());
+	}
+
+	// Returns the current level of the game
+	public int getLevel() {
+		return this.level;
+	}
+
+	// Returns the block is going to disapper in the game component
+	public ArrayList<ObjectInWorld> getBlocksToClear() {
+		return this.blocksToClear;
+	}
+	
+	// Returns an ArrayList containing the current blocks in the World
+	public ArrayList<ObjectInWorld> getBlocks() {
+		return this.blocks;
+	}
+	
+	/**
+	 * @return the enemies are going to disappear
+	 */
+	public ArrayList<Monster> getEnemiesToClear(){
+		return this.enemiesToClear;
+	}
+	
+	/**
+	 * bullets are going to disappear
+	 * @return
+	 */
+	public ArrayList<Bullet> getBulletsToClear(){
+		return this.bulletsToClear;
+	}
+	// returns whether the game is paused or not
+	public boolean isPaused() {
+		return this.isPaused;
+	}
+
+	// Returns the hero object in the game currently
+	public Hero getHero() {
+		return this.hero;
+	}
+	
+	/**
+	 * Returns the tunnel object in the game currently
+	 * 
+	 * @return
+	 */
+	public Tunnel getTunnel() {
+		return this.tunnel;
+	}
+
+	// Returns true if the point is in the window
+	public boolean includePoint(Point2D point) {
+		return (point.getX() >= 0 && point.getY() >= 0 && point.getX() <= 1080 && point
+				.getY() <= 720);
+	}
+
+	/**
+	 * Returns the footprints in the world
+	 * 
+	 * @return
+	 */
+	public ArrayList<FootPrint> getFootprints() {
+		return this.footprints;
+	}
+
+	// Calls timePassed on every object that is on the GameComponent
+	// Each object has its own implemented thing to do when called
+	public synchronized void timePassed() {
+		if (!this.isPaused) {
+			for (ObjectInWorld o : this.blocks) {
+				if (o != null) {
+					o.timePassed();
+				}
+			}
+			for (Monster m : this.enemies){
+				if (m != null){
+					m.timePassed();
+				}
+			}
+			for (Bullet b : this.bullets){
+				if(b!=null){
+					b.timePassed();
+				}
+			}
+		}
+		this.blocks.removeAll(this.blocksToClear);
+		this.blocksToClear.clear();
+		this.enemies.removeAll(enemiesToClear);
+		this.enemiesToClear.clear();
+		this.bullets.removeAll(bulletsToClear);
+		this.bulletsToClear.clear();
+	}
+
+	// sets the object to null and deletes it from the game
+	public void die() {
+		//
+	}
+
+	// Sets the game to be paused or un-paused
+	public void setIsPause(boolean isPaused) {
+		this.isPaused = isPaused;
+	}
+
+	// Returns the 2D Array of the info that stores the blocks in the level.
+	public char[][] getInfo() {
+		return this.getInfo();
+	}
+	
+	public void addEnemy(Monster enemy) {
+		this.enemies.add(enemy);
+	}
+	
+	public ArrayList<Monster> getEnemies(){
+		return this.enemies;
+	}
+	
+	public void addBullet(Bullet bullet){
+		this.bullets.add(bullet);
+	}
+}

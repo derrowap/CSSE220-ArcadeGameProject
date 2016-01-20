@@ -1,0 +1,55 @@
+import java.awt.Color;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+
+/*
+ * Is created when the user presses the space bar
+ * This is the Hero's weapon in the game and shoots directly forward
+ * in the direction the Hero was facing at the time.
+ * Kills any enemy that it comes in contact with
+ * Gets destroyed when it hits an enemy or a wall
+ */
+public class Bullet extends Character{
+	
+	private Hero hero;
+	
+	public Bullet(World world, Point2D upLeftPoint, Hero hero) {
+		super(world, upLeftPoint);
+		this.hero = hero;
+		this.setColor(Color.RED);
+		this.setDirection(this.hero.getDirection());
+//		this.setShape(new Rectangle2D.Double(this.getPosition().getX(), this.getPosition().getY(), 20, 20));
+		this.setSpeed(15);
+	}
+	
+	@Override
+	public void timePassed() {
+		Point2D previous = this.getPosition();
+		this.move(getDirection());
+		if(previous.equals(this.getPosition())){
+			this.die();
+			return;
+		}
+		if(!this.getWorld().getTunnel().isInEmptySpace(this)){
+			this.die();
+		}
+		Monster m = this.encounteredWithMonster();
+		if(m!=null){
+			m.die();
+		}
+	}
+
+	@Override
+	public void die() {
+		this.getWorld().getBulletsToClear().add(this);
+	}
+	
+	public Monster encounteredWithMonster(){
+		for(Monster m : this.getWorld().getEnemies()){
+			if(m.getShape().intersects((Rectangle2D) this.getShape())){
+				return m;
+			}
+		}
+		return null;
+	}
+}

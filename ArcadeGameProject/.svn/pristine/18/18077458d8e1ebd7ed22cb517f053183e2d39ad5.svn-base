@@ -1,0 +1,39 @@
+import java.awt.Color;
+import java.awt.geom.Point2D;
+
+/*
+ * A class that the different types of enemies extend to prevent copying code
+ * Currently not implemented
+ */
+public class Monster extends Character {
+
+	int xDistance;
+	int yDistance;
+	
+	public Monster(World world, Point2D upLeftPoint) {
+		super(world, upLeftPoint);
+		this.setColor(Color.black);
+	}
+	
+	public void getDistance() throws NullPointerException{
+		try{
+			// x > 0 means monster is to the right of the digger
+			this.xDistance = (int) (this.getGridPosition().getX() - this.getWorld().getHero().getGridPosition().getX());
+			// y > 0 means below the digger
+			this.yDistance = (int) (this.getGridPosition().getY() - this.getWorld().getHero().getGridPosition().getY());
+		} catch (NullPointerException e) {
+			this.xDistance = 1;
+			this.yDistance = -1;
+		}
+	}
+	
+	public void moveToHero(){
+		
+	}
+	
+	
+	@Override
+	public void die() {
+		this.getWorld().getEnemiesToClear().add(this);
+	}
+}

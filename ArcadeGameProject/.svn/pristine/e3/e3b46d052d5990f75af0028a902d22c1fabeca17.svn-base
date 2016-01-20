@@ -1,0 +1,103 @@
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Shape;
+import java.awt.geom.Rectangle2D;
+
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+
+
+/*
+ * Top panel of the Frame that displays the hero's score
+ */
+public class StatusComponent extends JComponent implements Temporal{
+	private static final int FRAMES_PER_SECOND = 30;
+	private static final long REPAINT_INTERVAL_MS = 1000 / FRAMES_PER_SECOND;
+	private static final Dimension SIZE = new Dimension(1080,100);
+	private Shape background = new Rectangle2D.Double(0,0,SIZE.getWidth(),SIZE.getHeight());
+	private Color bgColor = Color.black;
+	private WorldComponent wc;
+	private int score = 0;
+	private JLabel scoreLabel;
+	private JLabel levelLabel;
+	private int FONT_SIZE = 70;
+	
+	public StatusComponent(WorldComponent worldComponent){
+		this.wc = worldComponent;
+
+		// Label that displays the score
+		this.scoreLabel = new JLabel();
+		this.scoreLabel.setSize((int) SIZE.getWidth() / 2,
+				(int) SIZE.getHeight() - 20);
+		this.scoreLabel.setFont(new Font("Arial", 0, this.FONT_SIZE));
+		this.scoreLabel.setForeground(Color.GREEN);
+		this.add(scoreLabel);
+
+		// Label that displays the current Level
+		this.levelLabel = new JLabel();
+		this.levelLabel.setSize((int) SIZE.getWidth() / 4,
+				(int) SIZE.getHeight() - 20);
+		this.levelLabel.setText("Level: " + this.wc.getLevel());
+		this.levelLabel.setLocation((int) SIZE.getWidth()
+				- this.levelLabel.getText().length() * (this.FONT_SIZE / 2), 0);
+		this.levelLabel.setFont(new Font("Arial", 0, this.FONT_SIZE));
+		this.levelLabel.setForeground(Color.GREEN);
+		this.add(levelLabel, BorderLayout.EAST);
+		
+		// Thread Updates the Status Component
+		Runnable repainter = new Runnable() {
+			public void run() {
+				try {
+					while (true) {
+						Thread.sleep(REPAINT_INTERVAL_MS);
+						timePassed();
+					}
+				} catch (InterruptedException exception) {}
+			}
+		};
+		new Thread(repainter).start();
+	}
+	
+	@Override
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		Graphics2D g2 = (Graphics2D) g;		
+		g2.setColor(bgColor);
+		g2.fill(background);
+		this.score = this.wc.getWorld().getHero().getScore();
+		this.scoreLabel.setText("Score: " + this.score);
+		this.levelLabel.setText("Level: " + this.wc.getLevel());
+	}
+
+	@Override
+	public Dimension getPreferredSize() {
+		return SIZE;
+	}
+
+	public boolean isPaused() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void setIsPause(boolean isPaused) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void timePassed() {
+		repaint();
+	}
+
+	public void die() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	
+	
+}

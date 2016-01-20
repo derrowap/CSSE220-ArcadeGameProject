@@ -1,0 +1,15 @@
+import java.awt.Color;
+import java.awt.geom.Point2D;
+
+/*
+ * Gold object that is constructed when a bag falls more than one block
+ * When collected by hero, will increase the score
+ * Currently not implemented
+ */
+public class Gold extends Pickups {
+	private final Color Gold_Color = new Color(255,215,0);
+	
+	public Gold(World world,Point2D centerPoint) {
+		super(world, centerPoint);
+	}
+}

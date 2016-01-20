@@ -1,0 +1,73 @@
+import java.awt.Color;
+import java.awt.Shape;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+
+
+/*
+ * Dirt Object that is currently a gray block and does nothing
+ */
+public class Dirt extends ObjectInWorld{
+	private static final Color Dirt_Color = Color.darkGray;
+	
+	public Dirt(World world, Point2D upLeftPoint) {
+		super(world, upLeftPoint);
+		this.setColor(Dirt_Color);
+	}
+
+	@Override
+	public void timePassed() {
+		ArrayList<FootPrint> fps = this.getWorld().getFootprints();
+		double leftMost = -10000;
+		double rightMost = 10000;
+		double upMost = -10000;
+		double downMost = 10000;
+		double thisx = this.getPosition().getX();
+		double thisy = this.getPosition().getY();
+		for(FootPrint fp : fps){
+			double fpx = fp.getPosition().getX();
+			double fpy = fp.getPosition().getY();
+			if(fpy == thisy && fpx == thisx){
+				this.die();
+				this.getWorld().getTunnel().addEmptySpaces(new EmptySpace(this.getWorld(), this.getPosition()));
+				return;
+			}
+			if(fpy == thisy){
+				if(fpx < thisx){
+					if(fpx > leftMost){
+						leftMost = fpx;
+					}
+				}
+				if(fpx > thisx){
+					if(fpx < rightMost){
+						rightMost = fpx;
+					}
+				}
+			}
+			if(fpx == thisx){
+				if(fpy < thisy){
+					if(fpy > upMost){
+						upMost = fpy;
+					}
+				}
+				if(fpy > thisy){
+					if(fpy < downMost){
+						downMost = fpy;
+					}
+				}
+			}
+			if(leftMost + 72 > rightMost){
+				this.die();
+				this.getWorld().getTunnel().addEmptySpaces(new EmptySpace(this.getWorld(), this.getPosition()));
+				return;
+			}
+			if(upMost + 72 > downMost){
+				this.die();
+				this.getWorld().getTunnel().addEmptySpaces(new EmptySpace(this.getWorld(), this.getPosition()));
+				return;
+			}
+		}
+	}
+	
+}

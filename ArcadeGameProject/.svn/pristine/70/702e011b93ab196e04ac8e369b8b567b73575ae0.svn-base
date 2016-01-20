@@ -1,0 +1,122 @@
+import java.awt.Color;
+import java.awt.Shape;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+
+/*
+ * Represents any object in the world to prevent copying of code
+ * Allows other classes to get information about the object
+ * Can also change their fields through the implemented methods
+ */
+public abstract class ObjectInWorld implements Drawable, Temporal{
+	private static final int Block_Size = 72;
+	private Shape shape;
+	private Color color;
+	private World world;
+	private boolean isPaused;
+	
+	public ObjectInWorld(World world, Point2D upLeftPoint){
+		this.shape = new Rectangle2D.Double(upLeftPoint.getX(),upLeftPoint.getY(),Block_Size, Block_Size);
+		this.world = world;
+	}
+	
+	// Returns the shape of this object
+	public Shape getShape() {
+		return this.shape;
+	}
+
+	// Returns the color of this object
+	public Color getColor() {
+		return this.color;
+	}
+
+	// Sets the shape of this object
+	public void setShape(Shape shape){
+		this.shape = shape;
+	}
+	
+	// Sets the color of this object
+	public void setColor(Color color){
+		this.color = color;
+	}
+	
+	// Sets the World that this object is in
+	public void setWorld(World world){
+		this.world = world;
+	}
+	
+	// Returns the World object of this object
+	public World getWorld(){
+		return this.world;
+	}
+	
+	/**
+	 * update the position of the object by its upper left corner's position
+	 * @param upLeftPoint
+	 */
+	public void setPosition(Point2D upLeftPoint){
+		this.shape = new Rectangle2D.Double(upLeftPoint.getX(),upLeftPoint.getY(),Block_Size, Block_Size);
+	}
+	
+	// Returns the Point2D position in the window of this object
+	public Point2D getPosition(){
+		return(new Point2D.Double(this.shape.getBounds2D().getX(),this.shape.getBounds2D().getY()));
+	}
+	
+	// Returns the Point2D position in the grid of this object
+	public Point2D getGridPosition(){
+		return new Point2D.Double(this.getPosition().getY() / 72, this.getPosition().getX() / 72);
+	}
+	
+	// Sets the object to null and will get deleted from the game
+	public void die(){
+		this.world.getBlocksToClear().add(this);
+	}
+	
+	// Returns true if the game is paused
+	public boolean isPaused(){
+		return this.isPaused;
+	};
+	
+	// Sets the object to be paused or un-paused
+	public void setIsPause(boolean isPaused){
+		this.isPaused = isPaused;
+	};
+	
+	// Default thing to do if the specific object doesn't have this method implemented
+	public void timePassed(){
+		
+	};
+	
+	/**
+	 * @return whether this object encounters with the hero
+	 */
+	public boolean encounteredWithHero(){
+		Hero hero = this.getWorld().getHero();
+//		if(hero == null){
+//			return false;
+//		}
+//		double thisx = this.getPosition().getX();
+//		double thisy = this.getPosition().getY();
+//		double herox = hero.getPosition().getX();
+//		double heroy = hero.getPosition().getY();
+//		if(thisx == herox){
+//			if(thisy < heroy && heroy < thisy + 72){
+//				return true;
+//			}
+//			if(heroy < thisy && thisy < heroy + 72){
+//				return true;
+//			}
+//		}
+//		if(thisy == heroy){
+//			if(thisx < herox && herox < thisx + 72){
+//				return true;
+//			}
+//			if(herox < thisx && thisx < herox + 72){
+//				return true;
+//			}
+//		}
+		return hero.getShape().intersects((Rectangle2D) this.getShape());
+//		return false;
+	}
+}
