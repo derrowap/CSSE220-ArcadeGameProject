@@ -17,8 +17,8 @@ import java.io.InputStream;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 
-import sun.audio.AudioPlayer;
-import sun.audio.AudioStream;
+//import sun.audio.AudioPlayer;
+//import sun.audio.AudioStream;
 
 /*
  * Used to handle how the world is updated.
@@ -39,7 +39,7 @@ public class WorldComponent extends JComponent implements Temporal {
 	private boolean isPaused;
 	private int timeSinceLastBullet = 100;
 	private InputStream in;
-	private AudioStream audioStream;
+//	private AudioStream audioStream;
 	private JButton restartButton;
 
 	public WorldComponent() {
@@ -65,15 +65,15 @@ public class WorldComponent extends JComponent implements Temporal {
 		new Thread(repainter).start();
 
 		// Background Music
-		try {
-			this.in = new FileInputStream(new File("shrekMusic.wav"));
-		} catch (FileNotFoundException e) {
-		}
-		try {
-			this.audioStream = new AudioStream(this.in);
-		} catch (IOException e) {
-		}
-		AudioPlayer.player.start(this.audioStream);
+//		try {
+//			this.in = new FileInputStream(new File("shrekMusic.wav"));
+//		} catch (FileNotFoundException e) {
+//		}
+//		try {
+//			this.audioStream = new AudioStream(this.in);
+//		} catch (IOException e) {
+//		}
+//		AudioPlayer.player.start(this.audioStream);
 
 		// Button that appears if you lose the game
 		this.restartButton = new JButton("Restart Game");

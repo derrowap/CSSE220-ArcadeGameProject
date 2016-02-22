@@ -28,7 +28,7 @@ public class Main {
 		frame.setTitle("Digger Game");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
-		frame.setResizable(false);
+		frame.setResizable(true);
 
 	}
 
