@@ -14,11 +14,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-
-//import sun.audio.AudioPlayer;
-//import sun.audio.AudioStream;
 
 /*
  * Used to handle how the world is updated.
@@ -38,8 +38,6 @@ public class WorldComponent extends JComponent implements Temporal {
 	private static final long REPAINT_INTERVAL_MS = 1000 / FRAMES_PER_SECOND;
 	private boolean isPaused;
 	private int timeSinceLastBullet = 100;
-	private InputStream in;
-//	private AudioStream audioStream;
 	private JButton restartButton;
 
 	public WorldComponent() {
@@ -65,15 +63,21 @@ public class WorldComponent extends JComponent implements Temporal {
 		new Thread(repainter).start();
 
 		// Background Music
-//		try {
-//			this.in = new FileInputStream(new File("shrekMusic.wav"));
-//		} catch (FileNotFoundException e) {
-//		}
-//		try {
-//			this.audioStream = new AudioStream(this.in);
-//		} catch (IOException e) {
-//		}
-//		AudioPlayer.player.start(this.audioStream);
+		try {
+			File file = new File("shrekMusic.wav");
+			AudioInputStream stream = AudioSystem.getAudioInputStream(file);
+			Clip clip = AudioSystem.getClip();
+			clip.open(stream);
+			clip.start();
+
+			// sleep to allow enough time for the clip to play
+			Thread.sleep(500);
+
+			stream.close();
+
+		} catch (Exception ex) {
+			System.out.println(ex.getMessage());
+		}
 
 		// Button that appears if you lose the game
 		this.restartButton = new JButton("Restart Game");
